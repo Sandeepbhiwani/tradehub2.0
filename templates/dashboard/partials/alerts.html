@@ -1,0 +1,23 @@
+{% if messages %}
+    {% for message in messages %}
+        <div class="fixed inset-0 flex items-center justify-center z-50" id="message-{{ forloop.counter }}">
+            <div class="relative bg-black/80 text-white py-4 px-6 rounded-lg max-w-xs">
+                <p class="text-center text-xs font-semibold uppercase">
+                    {% if message.tags == 'error' %}Error: {% endif %}
+                    {{ message }}
+                </p>
+                <button type="button"
+                        class="absolute top-2 right-3 text-lg font-semibold text-gray-300 hover:text-white"
+                        onclick="document.getElementById('message-{{ forloop.counter }}').remove()">
+                    &times;
+                </button>
+            </div>
+        </div>
+
+        <script>
+            setTimeout(function() {
+                document.getElementById('message-{{ forloop.counter }}')?.remove();
+            }, 3000);
+        </script>
+    {% endfor %}
+{% endif %}
