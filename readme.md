@@ -139,10 +139,6 @@ The project owner is responsible for monitoring and enforcement.
 
 ## 📬 Contact
 
-**Developer:** Atul Gupta
-📞 +91 8423990159
-📧 [atulg0736@gmail.com](mailto:atulg0736@gmail.com)
-🌐 [https://startmarket.in](https://startmarket.in)
 
 ---
 

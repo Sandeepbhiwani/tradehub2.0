@@ -39,7 +39,7 @@
         <!-- Stock Items -->
         <div class="divide-y divide-gray-800/40">
             {% for stock in stocks %}
-            <div class="stock-item group transition-all duration-300 hover:bg-gray-800/20 active:bg-gray-700/30"
+            <!-- <div class="stock-item group transition-all duration-300 hover:bg-gray-800/20 active:bg-gray-700/30"
                 data-stock-id="{{ stock.id }}" data-symbol="{{ stock.symbol }}" data-name="{{ stock.name }}"
                 data-current-price="{{ stock.current_price|floatformat:2 }}"
                 data-open-price="{{ stock.open_price|floatformat:2 }}"
@@ -49,7 +49,23 @@
                 data-market-cap="{{ stock.market_cap|floatformat:2 }}"
                 data-pe-ratio="{{ stock.pe_ratio|floatformat:2 }}"
                 data-dividend-yield="{{ stock.dividend_yield|floatformat:2 }}"
-                data-last-updated="{{ stock.last_updated|date:'Y-m-d H:i:s' }}">
+                data-last-updated="{{ stock.last_updated|date:'Y-m-d H:i:s' }}"> -->
+                <div class="stock-item group transition-all duration-300 hover:bg-gray-800/20 active:bg-gray-700/30"
+     data-stock-id="{{ stock.id }}"
+     data-symbol="{{ stock.symbol }}"
+     data-name="{{ stock.name }}"
+     data-current-price="{{ stock.current_price|floatformat:2 }}"
+     data-open-price="{{ stock.open_price|floatformat:2 }}"
+     data-high-price="{{ stock.high_price|floatformat:2 }}"
+     data-low-price="{{ stock.low_price|floatformat:2 }}"
+     data-close-price="{{ stock.close_price|floatformat:2 }}"
+     data-volume="{{ stock.volume }}"
+     data-market-cap="{{ stock.market_cap|floatformat:2 }}"
+     data-pe-ratio="{{ stock.pe_ratio|floatformat:2 }}"
+     data-dividend-yield="{{ stock.dividend_yield|floatformat:2 }}"
+     data-min-quantity="{{ stock.min_quantity }}"   
+     data-last-updated="{{ stock.last_updated|date:'Y-m-d H:i:s' }}">
+
 
                 <div class="flex flex-col  gap-3 sm:px-6 py-4">
                     <!-- Stock Info -->

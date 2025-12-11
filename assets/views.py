@@ -105,7 +105,7 @@ def initiate_order(request):
             raise ValueError
     except (TypeError, ValueError):
         return _order_response(request, False, "Please enter a valid quantity.", is_ajax)
-
+    print("Initiating order:", symbol, order_type, quantity)
     stock = Stock.objects.filter(symbol=symbol).first()
     if not stock:
         return _order_response(request, False, "Selected stock could not be found.", is_ajax)

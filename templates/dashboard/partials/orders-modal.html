@@ -76,8 +76,16 @@
                     <!-- Order Form -->
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-gray-400 text-sm font-medium mb-3">Quantity</label>
+                            <!-- UPDATED HEADER: shows Min quantity on the right -->
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="block text-gray-400 text-sm font-medium">Quantity</label>
+                                <span class="text-xs text-gray-400">
+                                    Min quantity:
+                                    <span id="minQuantityLabel">1</span>
+                                </span>
+                            </div>
                             <div class="relative">
+                                <!-- min will be overridden from JS based on stock.min_quantity -->
                                 <input type="number" id="quantity" min="1" value="1"
                                     class="w-full bg-gray-700/50 border border-gray-600/30 rounded-lg px-4 py-2 text-lg text-white placeholder-gray-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200">
                                 <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex gap-1">
@@ -212,6 +220,7 @@
         </div>
     </div>
 </div>
+
 <script>
     // Enhanced Stock Modal Management
     let currentStockData = null;
@@ -233,6 +242,7 @@
             marketCap: parseFloat(stockElement.dataset.marketCap),
             peRatio: parseFloat(stockElement.dataset.peRatio),
             dividendYield: parseFloat(stockElement.dataset.dividendYield),
+            minQuantity: parseInt(stockElement.dataset.minQuantity) || 1,  // 👈 NEW
             lastUpdated: stockElement.dataset.lastUpdated
         };
 
@@ -242,8 +252,16 @@
         document.getElementById('modalStockName').textContent = currentStockData.name;
         document.getElementById('modalStockPrice').textContent = `₹${currentStockData.currentPrice.toFixed(2)}`;
 
-        // Calculate price change
-        const priceChange = ((currentStockData.currentPrice - currentStockData.openPrice) / currentStockData.openPrice * 100).toFixed(2);
+        // Set quantity based on minQuantity
+        const quantityInput = document.getElementById('quantity');
+        const minQty = currentStockData.minQuantity || 1;
+        quantityInput.min = minQty;
+        quantityInput.value = minQty;
+
+        const minQuantityLabel = document.getElementById('minQuantityLabel');
+        if (minQuantityLabel) {
+            minQuantityLabel.textContent = minQty;
+        }
 
         // Update order content
         document.getElementById('modalCurrentPrice').textContent = `₹${currentStockData.currentPrice.toFixed(2)}`;
@@ -322,14 +340,23 @@
     function adjustQuantity(amount) {
         const quantityInput = document.getElementById('quantity');
         const currentValue = parseInt(quantityInput.value) || 0;
-        quantityInput.value = Math.max(1, currentValue + amount);
+        const minQty = currentStockData ? (currentStockData.minQuantity || 1) : 1;
+
+        quantityInput.value = Math.max(minQty, currentValue + amount);
         updateOrderSummary();
     }
 
     function updateOrderSummary() {
         if (!currentStockData) return;
 
-        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+        let quantity = parseInt(document.getElementById('quantity').value) || 1;
+        const minQty = currentStockData.minQuantity || 1;
+
+        if (currentAction === 'buy' && quantity < minQty) {
+            quantity = minQty;
+            document.getElementById('quantity').value = minQty;
+        }
+
         const estimatedCost = quantity * currentStockData.currentPrice;
         const totalAmount = estimatedCost;
 
@@ -404,8 +431,17 @@
         if (!currentStockData || isPlacingOrder) return;
 
         const quantity = parseInt(document.getElementById('quantity').value, 10) || 0;
+        const minQty = currentStockData.minQuantity || 1;
+
         if (quantity <= 0) {
             showToast('Please enter a valid quantity.', 'error');
+            return;
+        }
+
+        // Enforce minimum quantity for BUY orders
+        if (currentAction === 'buy' && quantity < minQty) {
+            alert(`Please enter min quantity ${minQty}.`);
+            showToast(`Please enter min quantity ${minQty}.`, 'error');
             return;
         }
 
@@ -578,104 +614,60 @@
 <style>
     /* Custom Animations */
     @keyframes fade-in {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     @keyframes scale-in {
-        from {
-            transform: scale(0.9);
-            opacity: 0;
-        }
-
-        to {
-            transform: scale(1);
-            opacity: 1;
-        }
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
     }
 
     @keyframes slide-in-right {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
 
-    .animate-fade-in {
-        animation: fade-in 0.3s ease-out;
-    }
-
-    .animate-scale-in {
-        animation: scale-in 0.3s ease-out;
-    }
-
-    .animate-slide-in-right {
-        animation: slide-in-right 0.3s ease-out;
-    }
+    .animate-fade-in { animation: fade-in 0.3s ease-out; }
+    .animate-scale-in { animation: scale-in 0.3s ease-out; }
+    .animate-slide-in-right { animation: slide-in-right 0.3s ease-out; }
 
     /* Enhanced Scrollbar */
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-    }
-
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 3px;
     }
-
     .custom-scrollbar::-webkit-scrollbar-thumb {
         background: linear-gradient(to bottom, #3B82F6, #8B5CF6);
         border-radius: 3px;
     }
-
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: linear-gradient(to bottom, #2563EB, #7C3AED);
     }
 
-    /* Smooth transitions for all interactive elements */
     .stock-item,
     .action-btn,
     .tab-btn {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Mobile optimizations */
     @media (max-width: 640px) {
-        .stock-item {
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        .action-btn {
-            padding-left: 0.75rem;
-            padding-right: 0.75rem;
-        }
+        .stock-item { padding-left: 1rem; padding-right: 1rem; }
+        .action-btn { padding-left: 0.75rem; padding-right: 0.75rem; }
     }
 
-    /* Enhanced focus states for accessibility */
     button:focus-visible,
     input:focus-visible {
         outline: 2px solid #3B82F6;
         outline-offset: 2px;
     }
 
-    /* Loading states */
     .loading {
         opacity: 0.6;
         pointer-events: none;
     }
 
-    /* Premium gradient borders */
     .gradient-border {
         border: 1px solid;
         border-image: linear-gradient(45deg, #3B82F6, #8B5CF6) 1;
